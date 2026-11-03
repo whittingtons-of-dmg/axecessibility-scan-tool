@@ -1,9 +1,9 @@
 
 ### Download chromium
-> npx playwright install chromium
+```npx playwright install chromium```
     
 You can install other browsers and run them too. 
-I have not yet integrated options other than `Chromium`
+I have not yet integrated options other than `chromium`
 
 ## Required Arguments
 
