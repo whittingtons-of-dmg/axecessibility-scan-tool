@@ -100,8 +100,8 @@ try {
 
 async function scanAsync(page, url) {
     try {
-        await page.goto(url, {waitUntil: 'networkidle', timeout: 30000});
-
+        await page.goto(url, {waitUntil: 'load', timeout: 30000});
+        await page.waitForTimeout(2000); // let potential dynamic content load
         // Analyze against WCAG 2.0 (Levels A and AA)
         // If your goal is comprehensive WCAG 2.1 AA testing, you should also consider adding wcag21a and wcag21aa to your tags.
         const results = await new AxeBuilder({page})
@@ -124,8 +124,8 @@ async function scanAsync(page, url) {
             csvRows.push(`"${url}","No",${violation.impact}","${violation.id}","${cleanDescription}","${violation.helpUrl}","${cleanTargets}"`);
         }
 
+        console.log(`${results.incomplete.length} inconclusive result(s) on ${url}`);
         for (const result of results.incomplete) {
-            console.log(`${violations.length} inconclusive result(s) on ${url}`);
             const targets = result.nodes.map(node => node.target.join(' ')).join(' | ');
             const cleanDescription = result.description.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '').replace(/"/g, '""');
             const cleanHelp = result.help.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '').replace(/"/g, '""');
