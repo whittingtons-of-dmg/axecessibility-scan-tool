@@ -5,6 +5,8 @@
 You can install other browsers and run them too. 
 I have not yet integrated options other than `Chromium`
 
+## Required Arguments
+
 ### --filein 
     - Absolute path to url list
 ### --fileout 
@@ -13,11 +15,14 @@ I have not yet integrated options other than `Chromium`
     - Name of client
 ### --domain 
     - Name of domain
+
+## Optional Arguments
+
 ### --debug or -x | accepts following values
     - input
     - output
 
-### Example
+## Example
 ```
 node index.js 
 --filein ~/path/to/urls.csv 
