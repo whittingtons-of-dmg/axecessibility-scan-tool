@@ -6,7 +6,7 @@ const AxeBuilder = require('@axe-core/playwright').default;
 const fs =require('fs');
 const path = require('path');
 const { parseArgs } = require('util');
-const csvRows = ['"URL","Impact","Rule ID","Description","Help URL","Target Elements"'];
+const csvRows = ['"URL","Manual Review","Impact","Rule ID","Description","Help URL","Target Elements"'];
 
 let count
 count = 0;
@@ -103,12 +103,13 @@ async function scanAsync(page, url) {
         await page.goto(url, {waitUntil: 'networkidle', timeout: 30000});
 
         // Analyze against WCAG 2.0 (Levels A and AA)
+        // If your goal is comprehensive WCAG 2.1 AA testing, you should also consider adding wcag21a and wcag21aa to your tags.
         const results = await new AxeBuilder({page})
             .withTags(['wcag2a', 'wcag2aa'])
             .analyze();
 
         const violations = results.violations;
-        console.log(`Found ${violations.length} types of violations on ${url}`);
+        console.log(`Found ${violations.length} type(s) of violation(s) on ${url}`);
 
         for (const violation of violations) {
             // Collect all DOM selectors where this issue occurs
@@ -120,10 +121,22 @@ async function scanAsync(page, url) {
             const cleanTargets = targets.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '').replace(/"/g, '""');
 
             // Construct a standardized CSV row
-            csvRows.push(`"${url}","${violation.impact}","${violation.id}","${cleanDescription}","${violation.helpUrl}","${cleanTargets}"`);
+            csvRows.push(`"${url}","No",${violation.impact}","${violation.id}","${cleanDescription}","${violation.helpUrl}","${cleanTargets}"`);
         }
+
+        for (const result of results.incomplete) {
+            console.log(`${violations.length} inconclusive result(s) on ${url}`);
+            const targets = result.nodes.map(node => node.target.join(' ')).join(' | ');
+            const cleanDescription = result.description.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '').replace(/"/g, '""');
+            const cleanHelp = result.help.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '').replace(/"/g, '""');
+            const cleanTargets = targets.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '').replace(/"/g, '""');
+
+            // Construct a standardized CSV row
+            csvRows.push(`"${url}","Yes",${result.impact}","${result.id}","${cleanDescription}","${result.helpUrl}","${cleanTargets}"`);
+        }
+
     } catch (error) {
         console.error(`Failed to scan ${url}:`, error.message);
-        csvRows.push(`"${url}","ERROR","N/A","Failed to load or scan page: ${error.message.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '').replace(/"/g, '""')}","N/A","N/A"`);
+        csvRows.push(`"${url}","No","ERROR","N/A","Failed to load or scan page: ${error.message.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '').replace(/"/g, '""')}","N/A","N/A"`);
     }
 }
