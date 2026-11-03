@@ -20,9 +20,9 @@ I have not yet integrated options other than `Chromium`
 ### Example
 ```
 node index.js 
---filein ~/Projects/Accessibility/sites/stark-dev-board/urls.csv 
---fileout ~/Projects/Accessibility/sites/stark-dev-board/output.csv 
---client="stark-dev-board" 
---domain="stark-dev-board.innismaggiore.org/" 
+--filein ~/path/to/urls.csv 
+--fileout ~/path/to/output.csv 
+--client="<client>" 
+--domain="<domain>" 
 --debug input
 ```
